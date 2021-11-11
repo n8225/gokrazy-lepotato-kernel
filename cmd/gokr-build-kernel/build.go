@@ -14,7 +14,7 @@ import (
 )
 
 // see https://www.kernel.org/releases.json
-var latest = "https://github.com/hardkernel/linux/archive/refs/tags/5.4.156-234.tar.gz"
+var latest = "https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.15.1.tar.xz"
 
 const configContents = `
 #
@@ -1716,7 +1716,7 @@ CONFIG_PREVENT_FIRMWARE_BUILD=y
 # Firmware loader
 #
 CONFIG_FW_LOADER=y
-CONFIG_EXTRA_FIRMWARE="edid/1024x600.bin edid/1024x768.bin edid/1152x864_75hz.bin edid/1280x1024.bin edid/1280x720.bin edid/1280x768.bin edid/1280x800.bin edid/1360x768.bin edid/1366x768.bin edid/1400x1050.bin edid/1440x900.bin edid/1600x1200.bin edid/1600x900.bin edid/1680x1050.bin edid/1792x1344.bin edid/1920x1080_23_976hz.bin edid/1920x1080_24hz.bin edid/1920x1080_50hz.bin edid/1920x1080.bin edid/1920x1200_30hz.bin edid/1920x1200_60hz.bin edid/1920x800.bin edid/480x800.bin edid/640x480.bin edid/720x480.bin edid/720x576.bin edid/800x480.bin edid/800x600.bin edid/848x480.bin edid/480x272.bin"
+# CONFIG_EXTRA_FIRMWARE is not set
 CONFIG_EXTRA_FIRMWARE_DIR="firmware"
 # CONFIG_FW_LOADER_USER_HELPER is not set
 # CONFIG_FW_LOADER_COMPRESS is not set
@@ -6921,7 +6921,7 @@ func main() {
 		log.Fatalf("untar: %v", err)
 	}
 
-	srcdir := strings.TrimSuffix("linux-"+filepath.Base(latest), ".tar.gz")
+	srcdir := strings.TrimSuffix(filepath.Base(latest), ".tar.xz")
 
 	log.Printf("applying patches")
 	if err := applyPatches(srcdir); err != nil {

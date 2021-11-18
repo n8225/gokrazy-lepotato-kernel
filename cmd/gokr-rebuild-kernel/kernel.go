@@ -40,7 +40,10 @@ var dockerFileTmpl = template.Must(template.New("dockerfile").
 	}).
 	Parse(dockerFileContents))
 
-var patchFiles = []string{}
+var patchFiles = []string{
+	"0001-ODROID-XU4-regulator-s2mps11-call-shutdown-function-.patch",
+	"0002-ODROID-XU4-regulator-s2mps11-add-ethernet-power-rese.patch",
+}
 
 func copyFile(dest, src string) error {
 	out, err := os.Create(dest)

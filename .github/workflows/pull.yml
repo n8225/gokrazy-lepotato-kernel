@@ -1,0 +1,50 @@
+name: Test Boot
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+    name: CI
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        # Run on the latest minor release of Go 1.17:
+        go-version: ^1.17
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+
+    - name: Ensure all files were formatted as per gofmt
+      run: |
+        [ "$(gofmt -l $(find . -name '*.go') 2>&1)" = "" ]
+
+    - name: Amend Pull Request
+      env:
+        GITHUB_REPOSITORY: ${{ secrets.GITHUB_REPOSITORY }}
+        GH_USER: ${{ secrets.GH_USER }}
+        GH_AUTH_TOKEN: ${{ secrets.GH_AUTH_TOKEN }}
+        TRAVIS_PULL_REQUEST: ${{ github.event.pull_request.number }}
+        TRAVIS_PULL_REQUEST_BRANCH: ${{ github.event.pull_request.head.ref }}
+        BOOTERY_URL: ${{ secrets.BOOTERY_URL }}
+      if: ${{ env.GH_USER != 0 }}
+      run: |
+        if ! gokr-has-label please-merge && ! gokr-has-label please-boot; then go install ./cmd/gokr-rebuild-kernel && gokr-rebuild-kernel -overwrite_container_executable=docker && GOPROXY=direct go get -u github.com/gokrazy/autoupdate/cmd/gokr-amend && gokr-amend -set_label=please-boot *.dtb vmlinuz; fi
+
+    - name: Merge if boot successful
+      env:
+        GITHUB_REPOSITORY: ${{ secrets.GITHUB_REPOSITORY }}
+        GH_USER: ${{ secrets.GH_USER }}
+        GH_AUTH_TOKEN: ${{ secrets.GH_AUTH_TOKEN }}
+        TRAVIS_PULL_REQUEST: ${{ github.event.pull_request.number }}
+        TRAVIS_PULL_REQUEST_BRANCH: ${{ github.event.pull_request.head.ref }}
+        BOOTERY_URL: ${{ secrets.BOOTERY_URL }}
+      run: |
+        if gokr-has-label please-merge; then set +e; gokr-merge -require_label=please-merge; ret=$?; [ $ret -eq 2 ] || exit $ret; fi
+

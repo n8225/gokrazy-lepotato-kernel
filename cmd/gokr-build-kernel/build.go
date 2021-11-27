@@ -14,7 +14,7 @@ import (
 )
 
 // see https://www.kernel.org/releases.json
-var latest = "https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.15.2.tar.xz"
+var latest = "https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.15.5.tar.xz"
 
 const configContents = `
 #

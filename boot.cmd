@@ -1,4 +1,5 @@
-setenv root "/dev/mmcblk0p2"
+setenv bootargs "console=ttySAC2,115200n8 root=/dev/mmcblk0p2 rootwait panic=10 oops=panic init=/gokrazy/init"
+
 fatload mmc 2:1 0x40008000 vmlinuz
 
 fatload mmc 2:1 0x42000000 cmdline.txt
@@ -6,8 +7,6 @@ fatload mmc 2:1 0x42000000 cmdline.txt
 env import -t 0x42000000 ${filesize}
 
 fatload mmc 2:1 0x44000000 exynos5422-odroidhc1.dtb
-
-setenv bootargs "console=ttySAC2,115200n8 consoleblank=0 loglevel=7 root=${root} rootwait panic=10 oops=panic init=/gokrazy/init"
 
 fdt addr 0x44000000
 

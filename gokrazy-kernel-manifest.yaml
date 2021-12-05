@@ -1,0 +1,12 @@
+boot-partition-globs:
+  - boot.scr
+  - exynos5422-odroidhc1.dtb
+  - vmlinuz
+
+partition-table-type: mbr
+
+root-device-files:
+  bl1.bin: 512       # 512 * 1
+  bl2.bin: 15872     # 512 * 31
+  u-boot.bin: 32256  # 512 * 63
+  tzsw.bin: 769536   # 512 * 1503

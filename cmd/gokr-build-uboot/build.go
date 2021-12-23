@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-var latest = "https://ftp.denx.de/pub/u-boot/u-boot-2021.10.tar.bz2"
+var latest = "https://ftp.denx.de/pub/u-boot/u-boot-2022.01-rc4.tar.bz2"
 
 func downloadKernel() error {
 	out, err := os.Create(filepath.Base(latest))

@@ -110,47 +110,6 @@ func getContainerExecutable() (string, error) {
 	return "", fmt.Errorf("none of %v found in $PATH", choices)
 }
 
-var fileOffsets = []struct {
-	name           string
-	startingSector int64
-}{
-	// https://wiki.odroid.com/odroid-xu4/software/partition_table#tab__odroid-xu341
-	{"bl1.bin", 1},
-	{"bl2.bin", 31},
-	{"u-boot.bin", 63},
-	{"tzsw.bin", 1503},
-}
-
-func generateBootloaderbin() error {
-	f, err := os.CreateTemp("bootloader", "bootloader.bin")
-	if err != nil {
-		return err
-	}
-	defer os.Remove(f.Name())
-
-	for _, file := range fileOffsets {
-		offset := (file.startingSector - 1) * 512
-		if _, err := f.Seek(offset, os.SEEK_SET); err != nil {
-			return err
-		}
-
-		source, err := os.Open(file.name)
-		if err != nil {
-			return err
-		}
-		defer source.Close()
-		if _, err := io.Copy(f, source); err != nil {
-			return err
-		}
-	}
-
-	if err := f.Close(); err != nil {
-		return err
-	}
-
-	return os.Rename(f.Name(), filepath.Join("bootloader", "bootloader.bin"))
-}
-
 func main() {
 	var overwriteContainerExecutable = flag.String("overwrite_container_executable",
 		"",
@@ -279,10 +238,6 @@ func main() {
 	}
 
 	if err := copyFile(bootScrPath, filepath.Join(tmp, "boot.scr")); err != nil {
-		log.Fatal(err)
-	}
-
-	if err := generateBootloaderbin(); err != nil {
 		log.Fatal(err)
 	}
 }

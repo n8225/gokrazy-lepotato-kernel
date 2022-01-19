@@ -63,7 +63,14 @@ func applyPatches(srcdir string) error {
 }
 
 func compile() error {
-	f, err := os.OpenFile(".config", os.O_TRUNC|os.O_WRONLY|os.O_CREATE, 0644)
+	defconfig := exec.Command("make", "ARCH=arm", "exynos_defconfig")
+	defconfig.Stdout = os.Stdout
+	defconfig.Stderr = os.Stderr
+	if err := defconfig.Run(); err != nil {
+		return fmt.Errorf("make defconfig: %v", err)
+	}
+
+	f, err := os.OpenFile(".config", os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}

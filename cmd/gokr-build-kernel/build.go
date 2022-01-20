@@ -11,7 +11,12 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+
+	_ "embed"
 )
+
+//go:embed config.txt
+var configContents []byte
 
 // see https://www.kernel.org/releases.json
 var latest = "https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.16.1.tar.xz"
@@ -75,7 +80,7 @@ func compile() error {
 		return err
 	}
 	defer f.Close()
-	if _, err := f.Write([]byte(configContents)); err != nil {
+	if _, err := f.Write(configContents); err != nil {
 		return err
 	}
 	if err := f.Close(); err != nil {

@@ -13,9 +13,11 @@ import (
 	"strings"
 )
 
-var latest = "https://ftp.denx.de/pub/u-boot/u-boot-2022.01.tar.bz2"
+var ubootRev = "6146cd62aedc4849fec66f10ab0aa57f1dc64b8e"
+var ubootTS = 1643115703
+var latest = "https://github.com/u-boot/u-boot/archive/" + ubootRev + ".zip"
 
-func downloadKernel() error {
+func downloadUBoot() error {
 	out, err := os.Create(filepath.Base(latest))
 	if err != nil {
 		return err
@@ -73,7 +75,7 @@ func compile() error {
 	make.Env = append(os.Environ(),
 		"ARCH=arm",
 		"CROSS_COMPILE=arm-linux-gnueabihf-",
-		"SOURCE_DATE_EPOCH=1600000000",
+		"SOURCE_DATE_EPOCH="+strconv.Itoa(ubootTS),
 	)
 	make.Stdout = os.Stdout
 	make.Stderr = os.Stderr
@@ -129,19 +131,19 @@ func copyFile(dest, src string) error {
 
 func main() {
 	log.Printf("downloading uboot source: %s", latest)
-	if err := downloadKernel(); err != nil {
+	if err := downloadUBoot(); err != nil {
 		log.Fatal(err)
 	}
 
 	log.Printf("unpacking uboot source")
-	untar := exec.Command("tar", "xf", filepath.Base(latest))
+	untar := exec.Command("unzip", filepath.Base(latest))
 	untar.Stdout = os.Stdout
 	untar.Stderr = os.Stderr
 	if err := untar.Run(); err != nil {
 		log.Fatalf("untar: %v", err)
 	}
 
-	srcdir := strings.TrimSuffix(filepath.Base(latest), ".tar.bz2")
+	srcdir := "u-boot-" + strings.TrimSuffix(filepath.Base(latest), ".zip")
 
 	log.Printf("applying patches")
 	if err := applyPatches(srcdir); err != nil {

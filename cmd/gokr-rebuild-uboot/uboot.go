@@ -17,7 +17,7 @@ import (
 const dockerFileContents = `
 FROM debian:bullseye
 
-RUN apt-get update && apt-get install -y crossbuild-essential-armhf bc libssl-dev bison flex
+RUN apt-get update && apt-get install -y crossbuild-essential-armhf bc libssl-dev bison flex unzip
 
 COPY gokr-build-uboot /usr/bin/gokr-build-uboot
 {{- range $idx, $path := .Patches }}

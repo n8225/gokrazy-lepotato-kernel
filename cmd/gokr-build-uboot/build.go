@@ -13,8 +13,8 @@ import (
 	"strings"
 )
 
-var ubootRev = "2d0953c0e0de02dc470345c2b07d77d2a782dba6"
-var ubootTS = 1643390003
+var ubootRev = "98a90b2730696c1ba773359b7944f6685ae13344"
+var ubootTS = 1643481778
 var latest = "https://github.com/u-boot/u-boot/archive/" + ubootRev + ".zip"
 
 func downloadUBoot() error {

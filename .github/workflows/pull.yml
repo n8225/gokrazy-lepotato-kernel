@@ -36,4 +36,4 @@ jobs:
       if: ${{ env.GH_USER != 0 }}
       run: |
         GOPROXY=direct go get -u github.com/gokrazy/autoupdate/cmd/... github.com/gokrazy/tools/cmd/gokr-packer
-        if ! gokr-has-label please-merge && ! gokr-has-label please-boot; then go install ./cmd/gokr-rebuild-kernel && gokr-rebuild-kernel -overwrite_container_executable=docker && GOPROXY=direct go get -u github.com/gokrazy/autoupdate/cmd/gokr-amend && gokr-amend -set_label=please-boot *.dtb vmlinuz; fi
+        if ! gokr-has-label please-merge && ! gokr-has-label please-boot; then go install ./cmd/gokr-rebuild-kernel ./cmd/gokr-rebuild-uboot && gokr-rebuild-kernel -overwrite_container_executable=docker && gokr-rebuild-uboot -overwrite_container_executable=docker && GOPROXY=direct go get -u github.com/gokrazy/autoupdate/cmd/gokr-amend && gokr-amend -set_label=please-boot *.dtb vmlinuz u-boot.bin boot.scr; fi

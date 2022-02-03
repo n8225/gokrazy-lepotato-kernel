@@ -13,8 +13,9 @@ import (
 	"strings"
 )
 
-var ubootRev = "e267665a7420bddbfd5833573fdfc9d0930ff515"
-var ubootTS = 1643580754
+const ubootRev = "e267665a7420bddbfd5833573fdfc9d0930ff515"
+const ubootTS = 1643580754
+
 var latest = "https://github.com/u-boot/u-boot/archive/" + ubootRev + ".zip"
 
 func downloadUBoot() error {
@@ -136,7 +137,7 @@ func main() {
 	}
 
 	log.Printf("unpacking uboot source")
-	untar := exec.Command("unzip", filepath.Base(latest))
+	untar := exec.Command("unzip", "-q", filepath.Base(latest))
 	untar.Stdout = os.Stdout
 	untar.Stderr = os.Stderr
 	if err := untar.Run(); err != nil {

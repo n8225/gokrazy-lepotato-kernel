@@ -14,8 +14,8 @@ jobs:
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
       with:
-        # Run on the latest minor release of Go 1.17:
-        go-version: ^1.17
+        # Run on the latest minor release of Go 1.18:
+        go-version: ^1.18
       id: go
 
     - name: Check out code into the Go module directory
@@ -35,5 +35,5 @@ jobs:
         BOOTERY_URL: ${{ secrets.BOOTERY_URL }}
       if: ${{ env.GH_USER != 0 }}
       run: |
-        GOPROXY=direct go get -u github.com/gokrazy/autoupdate/cmd/... github.com/gokrazy/tools/cmd/gokr-packer
-        if ! gokr-has-label please-merge && ! gokr-has-label please-boot; then go install ./cmd/gokr-rebuild-kernel ./cmd/gokr-rebuild-uboot && gokr-rebuild-kernel -overwrite_container_executable=docker && gokr-rebuild-uboot -overwrite_container_executable=docker && GOPROXY=direct go get -u github.com/gokrazy/autoupdate/cmd/gokr-amend && gokr-amend -set_label=please-boot *.dtb vmlinuz u-boot.bin boot.scr; fi
+        GOPROXY=direct go install github.com/gokrazy/autoupdate/cmd/...@latest github.com/gokrazy/tools/cmd/gokr-packer@latest
+        if ! gokr-has-label please-merge && ! gokr-has-label please-boot; then go install ./cmd/gokr-rebuild-kernel ./cmd/gokr-rebuild-uboot && gokr-rebuild-kernel -overwrite_container_executable=docker && gokr-rebuild-uboot -overwrite_container_executable=docker && GOPROXY=direct go install github.com/gokrazy/autoupdate/cmd/gokr-amend@latest && gokr-amend -set_label=please-boot *.dtb vmlinuz u-boot.bin boot.scr; fi

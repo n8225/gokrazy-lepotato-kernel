@@ -16,8 +16,8 @@ jobs:
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
       with:
-        # Run on the latest minor release of Go 1.17:
-        go-version: ^1.17
+        # Run on the latest minor release of Go 1.18:
+        go-version: ^1.18
       id: go
 
     - name: Check out code into the Go module directory
@@ -25,7 +25,7 @@ jobs:
 
     - name: Get dependencies
       run: |
-        GOPROXY=direct go get -u github.com/anupcshan/gokrazyci/cmd/gokr-pull-uboot
+        GOPROXY=direct go install github.com/anupcshan/gokrazyci/cmd/gokr-pull-uboot@latest
 
     - name: Update uboot revision if newer commit is available
       env:

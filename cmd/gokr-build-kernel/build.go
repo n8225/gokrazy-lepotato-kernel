@@ -19,7 +19,7 @@ import (
 var configContents []byte
 
 // see https://www.kernel.org/releases.json
-var latest = "https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.19.4.tar.xz"
+var latest = "https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.19.5.tar.xz"
 
 const firmwareSource = "https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/plain/%s?id=%s"
 const firmwareRevision = "eb8ea1b46893c42edbd516f971a93b4d097730ab"

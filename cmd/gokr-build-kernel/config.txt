@@ -14,5 +14,5 @@ CONFIG_WIRELESS=n
 # Speed up boot and processing in general
 CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE=y
 CONFIG_DEBUG_KERNEL=n
-CONFIG_EXTRA_FIRMWARE="rtl_nic/rtl8153a-3.fw s5p-mfc-v8.fw"
-CONFIG_EXTRA_FIRMWARE_DIR="/tmp/firmware"
+###CONFIG_EXTRA_FIRMWARE="rtl_nic/rtl8153a-3.fw s5p-mfc-v8.fw"
+###CONFIG_EXTRA_FIRMWARE_DIR="/tmp/firmware"

@@ -2,70 +2,25 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"log"
-	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
+
+	"github.com/n8225/gokrazy-lepotato-kernel/internal/utils"
 )
 
-const ubootRev = "801f71194c54c75e90d723b9be3434b6354fce71"
-const ubootTS = 1666063032
+const ubootRev = "27c415ae8b743710e412ef408b52894af68141c6"
+const ubootTS = 1669325462
 
 var latest = "https://github.com/u-boot/u-boot/archive/" + ubootRev + ".zip"
-
-func downloadUBoot() error {
-	out, err := os.Create(filepath.Base(latest))
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-	resp, err := http.Get(latest)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	if got, want := resp.StatusCode, http.StatusOK; got != want {
-		return fmt.Errorf("unexpected HTTP status code for %s: got %d, want %d", latest, got, want)
-	}
-	if _, err := io.Copy(out, resp.Body); err != nil {
-		return err
-	}
-	return out.Close()
-}
-
-func applyPatches(srcdir string) error {
-	patches, err := filepath.Glob("*.patch")
-	if err != nil {
-		return err
-	}
-	for _, patch := range patches {
-		log.Printf("applying patch %q", patch)
-		f, err := os.Open(patch)
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-		cmd := exec.Command("patch", "-p1")
-		cmd.Dir = srcdir
-		cmd.Stdin = f
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		if err := cmd.Run(); err != nil {
-			return err
-		}
-		f.Close()
-	}
-
-	return nil
-}
+var GxlimgUrl = "https://github.com/repk/gxlimg/archive/refs/heads/master.zip"
 
 func compile() error {
-	defconfig := exec.Command("make", "ARCH=arm", "odroid-xu3_defconfig")
+	defconfig := exec.Command("make", "ARCH=arm64", "libretech-cc_defconfig")
 	defconfig.Stdout = os.Stdout
 	defconfig.Stderr = os.Stderr
 	if err := defconfig.Run(); err != nil {
@@ -74,8 +29,8 @@ func compile() error {
 
 	make := exec.Command("make", "u-boot.bin", "-j"+strconv.Itoa(runtime.NumCPU()))
 	make.Env = append(os.Environ(),
-		"ARCH=arm",
-		"CROSS_COMPILE=arm-linux-gnueabihf-",
+		"ARCH=arm64",
+		"CROSS_COMPILE=aarch64-linux-gnu-",
 		"SOURCE_DATE_EPOCH="+strconv.Itoa(ubootTS),
 	)
 	make.Stdout = os.Stdout
@@ -88,10 +43,10 @@ func compile() error {
 }
 
 func generateBootScr(bootCmdPath string) error {
-	mkimage := exec.Command("./tools/mkimage", "-A", "arm", "-O", "linux", "-T", "script", "-C", "none", "-a", "0", "-e", "0", "-n", "Gokrazy Boot Script", "-d", bootCmdPath, "boot.scr")
+	mkimage := exec.Command("./tools/mkimage", "-A", "arm64", "-O", "linux", "-T", "script", "-C", "none", "-a", "0", "-e", "0", "-n", "Gokrazy Boot Script", "-d", bootCmdPath, "boot.scr")
 	mkimage.Env = append(os.Environ(),
-		"ARCH=arm",
-		"CROSS_COMPILE=arm-linux-gnueabihf-",
+		"ARCH=arm64",
+		"CROSS_COMPILE=aarch64-linux-gnu-",
 		"SOURCE_DATE_EPOCH=1600000000",
 	)
 	mkimage.Stdout = os.Stdout
@@ -103,59 +58,39 @@ func generateBootScr(bootCmdPath string) error {
 	return nil
 }
 
-func copyFile(dest, src string) error {
-	out, err := os.Create(dest)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	in, err := os.Open(src)
-	if err != nil {
-		return err
-	}
-	defer in.Close()
-
-	if _, err := io.Copy(out, in); err != nil {
-		return err
+func compileGxl() error {
+	makeGxl := exec.Command("make")
+	makeGxl.Stdout = os.Stdout
+	makeGxl.Stderr = os.Stderr
+	if err := makeGxl.Run(); err != nil {
+		return fmt.Errorf("gxlimg:: make: %v", err)
 	}
 
-	st, err := in.Stat()
-	if err != nil {
-		return err
+	genImage := exec.Command("make", "image", "UBOOT=../u-boot-dtb.bin")
+	genImage.Stdout = os.Stdout
+	genImage.Stderr = os.Stderr
+	if err := genImage.Run(); err != nil {
+		return fmt.Errorf("gxlimg:: make image: %v", err)
 	}
-	if err := out.Chmod(st.Mode()); err != nil {
-		return err
-	}
-	return out.Close()
+	return nil
 }
 
 func main() {
-	log.Printf("downloading uboot source: %s", latest)
-	if err := downloadUBoot(); err != nil {
+
+	if err := utils.Download(latest); err != nil {
 		log.Fatal(err)
 	}
 
-	log.Printf("unpacking uboot source")
-	untar := exec.Command("unzip", "-q", filepath.Base(latest))
-	untar.Stdout = os.Stdout
-	untar.Stderr = os.Stderr
-	if err := untar.Run(); err != nil {
-		log.Fatalf("untar: %v", err)
-	}
+	utils.Unzip(latest)
 
 	srcdir := "u-boot-" + strings.TrimSuffix(filepath.Base(latest), ".zip")
-
-	log.Printf("applying patches")
-	if err := applyPatches(srcdir); err != nil {
-		log.Fatal(err)
-	}
 
 	var bootCmdPath string
 	if p, err := filepath.Abs("boot.cmd"); err != nil {
 		log.Fatal(err)
 	} else {
 		bootCmdPath = p
+		log.Print(bootCmdPath)
 	}
 
 	if err := os.Chdir(srcdir); err != nil {
@@ -172,11 +107,29 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := copyFile("/tmp/buildresult/u-boot.bin", "u-boot.bin"); err != nil {
+	if err := utils.CopyFile("boot.scr", "/tmp/buildresult/boot.scr"); err != nil {
 		log.Fatal(err)
 	}
 
-	if err := copyFile("/tmp/buildresult/boot.scr", "boot.scr"); err != nil {
+	if err := utils.Download(GxlimgUrl); err != nil {
 		log.Fatal(err)
 	}
+
+	utils.Unzip(GxlimgUrl)
+
+	gxlimgsrcdir := "gxlimg-" + strings.TrimSuffix(filepath.Base(GxlimgUrl), ".zip")
+
+	if err := os.Chdir(gxlimgsrcdir); err != nil {
+		log.Fatal(err)
+	}
+
+	log.Printf("compiling Gxlimg")
+	if err := compileGxl(); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := utils.CopyFile("build/gxl-boot.bin", "/tmp/buildresult/u-boot.bin"); err != nil {
+		log.Fatal(err)
+	}
+
 }

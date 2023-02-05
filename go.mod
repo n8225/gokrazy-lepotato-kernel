@@ -1,3 +1,3 @@
-module github.com/anupcshan/gokrazy-odroidxu4-kernel
+module github.com/n8225/gokrazy-lepotato-kernel
 
-go 1.17
+go 1.19

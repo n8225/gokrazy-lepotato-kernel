@@ -1,0 +1,14 @@
+FROM debian:bullseye
+RUN apt-get update && apt-get install -y curl crossbuild-essential-arm64 gcc-aarch64-linux-gnu bc libssl-dev bison flex unzip python
+
+RUN echo 'builduser:x:{{ .Uid }}:{{ .Gid }}:nobody:/:/bin/sh' >> /etc/passwd && \
+    chown -R {{ .Uid }}:{{ .Gid }} /usr/src
+    
+COPY {{ .Binary }} /usr/bin/{{ .Binary }}
+{{ range .Files }}
+COPY {{ . }} /usr/src/{{ . }}
+{{ end }}
+
+USER builduser
+WORKDIR /usr/src
+ENTRYPOINT /usr/bin/{{ .Binary }}

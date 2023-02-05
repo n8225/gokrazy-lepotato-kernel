@@ -13,8 +13,8 @@ import (
 	"github.com/n8225/gokrazy-lepotato-kernel/internal/utils"
 )
 
-const ubootRev = "27c415ae8b743710e412ef408b52894af68141c6"
-const ubootTS = 1669325462
+const ubootRev = "a209c3e6b48cf042d0220245a2d1636f74389c17"
+const ubootTS = 1675438245
 
 var latest = "https://github.com/u-boot/u-boot/archive/" + ubootRev + ".zip"
 var GxlimgUrl = "https://github.com/repk/gxlimg/archive/refs/heads/master.zip"

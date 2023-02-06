@@ -39,7 +39,7 @@ func main() {
 
 	utils.RunCompile("uboot", execName, tmp)
 
-	if err := utils.CopyFile(filepath.Join(tmp, "u-boot.bin"), filepath.Join(pkgPath, "u-boot.bin")); err != nil {
+	if err := utils.CopyFile(filepath.Join(tmp, "u-boot.bin"), filepath.Join(pkgPath, "u-boot")); err != nil {
 		log.Fatal(err)
 	}
 
